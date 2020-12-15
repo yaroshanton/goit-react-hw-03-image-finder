@@ -15,6 +15,9 @@ export default class Searchbar extends Component {
         e.preventDefault();
 
         this.props.onSubmit(this.state.inputValue)
+        this.setState({
+            inputValue: ''
+        })
     }
 
     render() {
@@ -31,7 +34,7 @@ export default class Searchbar extends Component {
                         autoComplete="off"
                         autoFocus
                         placeholder="Search images and photos"
-                        // value={this.state.inputValue}
+                        value={this.state.inputValue}
                         onChange={this.handleChange}
                     />
                 </form>

@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-const fetchWithQuery = query => {
+const fetchWithQuery = (query, page = 1) => {
     return axios
-        .get(`https://pixabay.com/api/?q=${query}&page=1&key=18828859-930db298be4f18593f67074f1&image_type=photo&orientation=horizontal&per_page=12`)
+        .get(`https://pixabay.com/api/?q=${query}&page=${page}&key=18828859-930db298be4f18593f67074f1&image_type=photo&orientation=horizontal&per_page=12`)
         .then(res => res.data.hits);
 };
 

@@ -13,31 +13,47 @@ export default class App extends Component {
     state = {
         photos: '',
         error: null,
+        serchQuery: '',
+        page: 1,
     }
 
-    componentDidMount() {
+    componentDidUpdate(prevProps, prevState) {
+        const prevQuery = prevState.serchQuery;
+        const nextQuery = this.state.serchQuery;
 
-
+        if (prevQuery !== nextQuery) {
+            this.fetchPhotos();
+        }
     }
 
-    fetchPhotos = query => {
-        PhotosApi.fetchWithQuery({ query })
-            .then(photos => this.setState({ photos }))
-            .catch(error => this.setState({ error }))
+    fetchPhotos = () => {
+        const { serchQuery, page } = this.state
+        PhotosApi.fetchWithQuery(serchQuery, page)
+            .then(photos => this.setState(prevState => ({
+                photos: [...prevState.photos, ...photos],
+                page: prevState.page + 1
+            })))
+            .catch(error => console.log(error))
     }
 
-
+    handleFormSubmit = query => {
+        this.setState({
+            serchQuery: query, page: 1, photos: []
+        })
+    }
 
     render() {
+
         const { photos, error } = this.state
+
         return (
             <>
                 {error && <Notification message={`Whoops, something went wrong: ${error.message}`} />}
-                <Searchbar onSubmit={this.fetchPhotos} />
+                <Searchbar onSubmit={this.handleFormSubmit} />
                 {photos.length > 0 && <ImageGallery>
                     <ImageGalleryItem photos={photos} />
                 </ImageGallery>}
-                {photos.length > 0 && <Button />}
+                {photos.length > 0 && <Button onClick={this.fetchPhotos} />}
             </>
         )
     }
