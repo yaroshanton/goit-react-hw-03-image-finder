@@ -5,6 +5,7 @@ import Searchbar from './Searchbar/Searchbar'
 import ImageGallery from './ImageGallery/ImageGallery'
 import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem'
 import Button from './Button/Button'
+import Loader from './Loader/Loader'
 import './styles.css'
 
 // rfc
@@ -15,6 +16,7 @@ export default class App extends Component {
         error: null,
         serchQuery: '',
         page: 1,
+        loading: false
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -28,13 +30,30 @@ export default class App extends Component {
 
     fetchPhotos = () => {
         const { serchQuery, page } = this.state
+
+        this.setState({
+            loading: true
+        })
+
         PhotosApi.fetchWithQuery(serchQuery, page)
-            .then(photos => this.setState(prevState => ({
-                photos: [...prevState.photos, ...photos],
-                page: prevState.page + 1
-            })))
+            .then((photos) => {
+                this.setState(prevState => {
+                    return {
+                        photos: [...prevState.photos, ...photos],
+                        page: prevState.page + 1
+                    };
+                });
+                window.scrollTo({
+                    top: document.documentElement.scrollHeight - 973,
+                    behavior: "smooth",
+                });
+            })
             .catch(error => console.log(error))
+            .finally(() => this.setState({ loading: false }))
     }
+
+
+
 
     handleFormSubmit = query => {
         this.setState({
@@ -44,7 +63,7 @@ export default class App extends Component {
 
     render() {
 
-        const { photos, error } = this.state
+        const { photos, error, loading } = this.state
 
         return (
             <>
@@ -53,7 +72,8 @@ export default class App extends Component {
                 {photos.length > 0 && <ImageGallery>
                     <ImageGalleryItem photos={photos} />
                 </ImageGallery>}
-                {photos.length > 0 && <Button onClick={this.fetchPhotos} />}
+                {photos.length > 0 && !loading && <Button onClick={this.fetchPhotos} />}
+                {loading && <Loader />}
             </>
         )
     }
