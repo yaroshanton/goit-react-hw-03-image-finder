@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 function Modal({ onClose, children }) {
     return (
-        <div className="Overlay" onClick={onClose}>
+        <div className="Overlay" id="overlay" onClick={onClose}>
             <div className="Modal">
                 {children}
             </div>
