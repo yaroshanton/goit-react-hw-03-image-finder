@@ -1,16 +1,25 @@
-import React from 'react'
+import React, { Component } from "react";
+import ImageItem from "./ImageItem";
+import PropTypes from "prop-types";
 
-export default function ImageGalleryItem({ photos }) {
-    return (
-        <>
-            {
-                photos.map(({ id, webformatURL }) => (
-                    <li key={id} className="ImageGalleryItem">
-                        <img src={webformatURL} alt="" className="ImageGalleryItem-image" />
-                    </li>
-                ))
-            }
+export default class ImageGalleryItem extends Component {
+    static propTypes = {
+        largeImg: PropTypes.func.isRequired,
+        images: PropTypes.array.isRequired
+    };
 
-        </>
-    )
+    onClickImage = () => {
+        this.props.largeImg();
+    };
+
+    render() {
+        const { photos, largeImg } = this.props;
+        return (
+            <ul className="ImageGallery">
+                {photos.map((photo) => {
+                    return <ImageItem image={photo} largeImg={largeImg} key={photo.id} />;
+                })}
+            </ul>
+        );
+    }
 }

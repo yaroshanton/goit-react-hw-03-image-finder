@@ -6,6 +6,7 @@ import ImageGallery from './ImageGallery/ImageGallery'
 import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem'
 import Button from './Button/Button'
 import Loader from './Loader/Loader'
+import Modal from './Modal/Modal'
 import './styles.css'
 
 // rfc
@@ -16,8 +17,11 @@ export default class App extends Component {
         error: null,
         serchQuery: '',
         page: 1,
-        loading: false
+        loading: false,
+        disabled: false,
+        largeImageURL: null
     }
+
 
     componentDidUpdate(prevProps, prevState) {
         const prevQuery = prevState.serchQuery;
@@ -25,6 +29,21 @@ export default class App extends Component {
 
         if (prevQuery !== nextQuery) {
             this.fetchPhotos();
+        }
+
+        if (
+            prevState.largeImageURL !== this.state.largeImageURL &&
+            this.state.largeImageURL
+        ) {
+            this.setState({ disabled: true });
+            window.addEventListener("keydown", this.closeModalWindow);
+        }
+    }
+
+    closeModalWindow = (e) => {
+        if (e.code === 'Escape' || e.target.id === 'overlay') {
+            this.setState({ disabled: false, largeImageURL: null });
+            window.removeEventListener("keydown", this.closeModalWindow);
         }
     }
 
@@ -52,28 +71,32 @@ export default class App extends Component {
             .finally(() => this.setState({ loading: false }))
     }
 
-
-
-
     handleFormSubmit = query => {
         this.setState({
             serchQuery: query, page: 1, photos: []
         })
     }
 
+    handlerModalWindow = (largeImageURL) => {
+        this.setState({ largeImageURL });
+    };
+
     render() {
 
-        const { photos, error, loading } = this.state
+        const { photos, error, loading, disabled, largeImageURL } = this.state
 
         return (
             <>
                 {error && <Notification message={`Whoops, something went wrong: ${error.message}`} />}
                 <Searchbar onSubmit={this.handleFormSubmit} />
                 {photos.length > 0 && <ImageGallery>
-                    <ImageGalleryItem photos={photos} />
+                    <ImageGalleryItem photos={photos} largeImg={this.handlerModalWindow} />
                 </ImageGallery>}
                 {photos.length > 0 && !loading && <Button onClick={this.fetchPhotos} />}
                 {loading && <Loader />}
+                {disabled && <Modal onClose={this.closeModalWindow}>
+                    <img src={largeImageURL} alt="Large Img" />
+                </Modal>}
             </>
         )
     }
